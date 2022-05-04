@@ -1,7 +1,7 @@
 # openAFR
  Open-source analysis code for angular filter refractometry analysis
  
- * This is very much a work in progress * ! 
+This code is very much a work in progress - please contact me with suggestions bugs.
  
 # Downloading and installing h5toh4convert
 
