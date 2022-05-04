@@ -427,6 +427,11 @@ class AFRLineout:
         self.edges[name].append(self.line_ax[name][-1])
         
         
+    def _monotonic_filters(self, name):
+        self.segment_filters[name] = np.arange(len(self.edges[name])-1)
+        
+        
+        
     def _find_filters(self, name, filters=None):
         
         # Get user input (or use keyword value) for the filter band
@@ -470,18 +475,7 @@ class AFRLineout:
                           f"{x} is binary value "
                           f"{self.AFRFilters[name].filter_binary[x]}")
 
-             
 
-        # Make an array that shows which filter ring corresponds to each point
-        self.filters_arr[name] = np.zeros(self.line_ax[name].size)
-        for i in range(len(self.edges[name])-1):
-            a = np.argmin(np.abs(self.edges[name][i]  - self.line_ax[name]))
-            b = np.argmin(np.abs(self.edges[name][i+1]  - self.line_ax[name]))
-            self.filters_arr[name][a:b] = self.segment_filters[name][i]
-        self.filters_arr[name][a:] = self.segment_filters[name][-1] # Force end value to last filter
-        
-        
-        
     def _assign_points(self, name):
         """
         With edges found and filters chosen for each segment, chose points on
@@ -542,7 +536,19 @@ class AFRLineout:
         self._find_edges(name, threshold=threshold)
         self.plot_line()
 
-        self._find_filters(name, filters=filters)
+        if filters == 'monotonic':
+            self._monotonic_filters(name)
+        else:
+            self._find_filters(name, filters=filters)
+        
+        # Make an array that shows which filter ring corresponds to each point
+        self.filters_arr[name] = np.zeros(self.line_ax[name].size)
+        for i in range(len(self.edges[name])-1):
+            a = np.argmin(np.abs(self.edges[name][i]  - self.line_ax[name]))
+            b = np.argmin(np.abs(self.edges[name][i+1]  - self.line_ax[name]))
+            self.filters_arr[name][a:b] = self.segment_filters[name][i]
+        self.filters_arr[name][a:] = self.segment_filters[name][-1] # Force end value to last filter
+        
         self.plot_line()
         
         self._assign_points(name)
